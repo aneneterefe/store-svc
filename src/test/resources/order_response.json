@@ -1,0 +1,18 @@
+{
+  "id": 1,
+  "orderDate": "2021-11-20",
+  "totalOrderPrice": 1.2,
+  "orderItems": [
+    {
+      "id": 1,
+      "quantity": 2,
+      "price": 1.2,
+      "item": {
+        "id": 1,
+        "name": "Apples",
+        "price": 0.6,
+        "description": "Yummy Apples"
+      }
+    }
+  ]
+}
