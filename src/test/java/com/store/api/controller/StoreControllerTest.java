@@ -13,6 +13,7 @@ import com.store.api.service.OrderServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -74,7 +76,7 @@ class StoreControllerTest {
     @Test
     void createItem() throws Exception {
         when(itemService.createItem(getItemRequest())).thenReturn(getItem());
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/store/api/items")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/store/api/item")
                         .content("{\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\"}")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isCreated())
@@ -102,6 +104,40 @@ class StoreControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isCreated())
                 .andReturn();
+    }
+
+    @Test
+    void getAllOrders() throws Exception {
+        when(orderService.getAllOrders()).thenReturn(Collections.singletonList(getOrder()));
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/store/api/orders"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn();
+        Assertions.assertEquals("[{\"id\":1,\"orderDate\":\"2021-11-20\",\"totalOrderPrice\":1.2,\"orderItems\":[{\"id\":1,\"quantity\":2,\"price\":1.2,\"item\":{\"id\":1,\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\",\"offerType\":null},\"offer\":null}],\"totalOfferPrice\":null}]",
+                mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    void getOrderById() throws Exception {
+        when(orderService.getOrder(Mockito.anyLong())).thenReturn(Optional.of(getOrder()));
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/store/api/order")
+                        .param("id","1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andReturn();
+        Assertions.assertEquals("{\"id\":1,\"orderDate\":\"2021-11-20\",\"totalOrderPrice\":1.2,\"orderItems\":[{\"id\":1,\"quantity\":2,\"price\":1.2,\"item\":{\"id\":1,\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\",\"offerType\":null},\"offer\":null}],\"totalOfferPrice\":null}",
+                mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    void getOrderById_NotFound() throws Exception {
+        when(orderService.getOrder(Mockito.anyLong())).thenReturn(Optional.empty());
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/store/api/order")
+                        .param("id","1"))
+                .andExpect(status().isNotFound())
+                .andReturn();
+        Assertions.assertEquals("",
+                mvcResult.getResponse().getContentAsString());
     }
 
     private ItemDto getItem() throws IOException {

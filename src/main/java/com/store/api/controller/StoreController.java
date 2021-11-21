@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,7 +38,7 @@ public class StoreController {
         return new ResponseEntity<>(itemResponses, HttpStatus.OK);
     }
 
-    @PostMapping("/items")
+    @PostMapping("/item")
     public ResponseEntity<ItemResponse> createItem(@RequestBody ItemRequest itemRequest){
         final ItemDto item = itemService.createItem(itemRequest);
         return new ResponseEntity<>(
@@ -53,5 +54,24 @@ public class StoreController {
                 orderResponseMapper.map(order, OrderResponse.class)
                 , HttpStatus.CREATED
         );
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderResponse>> getAllOrders(){
+        final List<OrderDto> orderDtos = orderService.getAllOrders();
+        List<OrderResponse> orderResponses = orderDtos.stream()
+                .map(orderDto -> orderResponseMapper.map(orderDto, OrderResponse.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(orderResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/order")
+    public ResponseEntity<OrderResponse> getOrder(@RequestParam("id") Long id){
+        final Optional<OrderDto> orderDto = orderService.getOrder(id);
+        if(orderDto.isPresent()){
+            final OrderResponse orderResponse = orderResponseMapper.map(orderDto.get(), OrderResponse.class);
+            return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+        }
+        return ResponseEntity.notFound().build();
     }
 }

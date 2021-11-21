@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,28 @@ public class OrderServiceImpl implements OrderService {
                     .totalOfferPrice(PriceCalculator.calculateTotalOfferPrice(orderItems))
                     .build();
             return orderDtoMapper.map(orderRepository.save(order), OrderDto.class);
+        } catch (Exception exception){
+            throw new GeneralException(exception, ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public List<OrderDto> getAllOrders() {
+        try {
+            final List<Order> orders = orderRepository.findAll();
+            return orders.stream()
+                    .map(order -> orderDtoMapper.map(order, OrderDto.class))
+                    .collect(Collectors.toList());
+        } catch (Exception exception){
+            throw new GeneralException(exception, ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public Optional<OrderDto> getOrder(Long id) {
+        try {
+            final Optional<Order> order = orderRepository.findById(id);
+            return order.map(value -> orderDtoMapper.map(value, OrderDto.class));
         } catch (Exception exception){
             throw new GeneralException(exception, ERROR_MESSAGE);
         }

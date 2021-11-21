@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -109,6 +110,32 @@ class OrderServiceImplTest {
     void create_order_Exception(){
         final GeneralException generalException = assertThrows(GeneralException.class, () -> orderService.createOrder(null));
         assertEquals("Exception has occurred while accessing db",generalException.getErrorMessage());
+    }
+
+    @Test
+    @DisplayName("Get Order: findAll")
+    void get_order_success() throws IOException {
+        when(orderRepository.findAll()).thenReturn(Collections.singletonList(getOrder("src/test/resources/order_response.json")));
+        List<OrderDto> order = orderService.getAllOrders();
+        assertNotNull(order);
+        assertTrue(order.size()>0);
+    }
+
+    @Test
+    @DisplayName("Get Order: findById")
+    void get_order_by_id() throws IOException {
+        when(orderRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(getOrder("src/test/resources/order_response.json")));
+        Optional<OrderDto> order = orderService.getOrder(1L);
+        assertTrue(order.isPresent());
+        assertEquals(1L, order.get().getId());
+    }
+
+    @Test
+    @DisplayName("Get Order By Id: Not Found")
+    void get_order_by_id_not_found() {
+        when(orderRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Optional<OrderDto> order = orderService.getOrder(1L);
+        assertFalse(order.isPresent());
     }
 
     private Order getOrder(String filePath) throws IOException {
