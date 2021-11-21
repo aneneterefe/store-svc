@@ -67,7 +67,7 @@ class StoreControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn();
-        Assertions.assertEquals("[{\"id\":1,\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\"}]",
+        Assertions.assertEquals("[{\"id\":1,\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\",\"offerType\":null}]",
                 mvcResult.getResponse().getContentAsString());
     }
 
@@ -80,7 +80,7 @@ class StoreControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn();
-        Assertions.assertEquals("{\"id\":1,\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\"}",
+        Assertions.assertEquals("{\"id\":1,\"name\":\"Apples\",\"price\":0.6,\"description\":\"Yummy Apples\",\"offerType\":null}",
                 mvcResult.getResponse().getContentAsString());
     }
 

@@ -25,8 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,14 +51,57 @@ class OrderServiceImplTest {
     @Test
     @DisplayName("Create Order: Success")
     void create_order_success() throws IOException {
-        List<OrderRequest> orderRequests = getOrderRequest();
-        when(orderRepository.save(Mockito.any())).thenReturn(getOrder());
+        List<OrderRequest> orderRequests = getOrderRequest("src/test/resources/order_request.json");
+        when(orderRepository.save(Mockito.any())).thenReturn(getOrder("src/test/resources/order_response.json"));
         OrderDto order = orderService.createOrder(orderRequests);
-        Assertions.assertNotNull(order);
+        assertNotNull(order);
         Assertions.assertEquals(orderRequests.size(), order.getOrderItems().size());
         Assertions.assertEquals(
                 orderRequests.get(0).getQuantity() * orderRequests.get(0).getItem().getPrice(),
                 order.getTotalOrderPrice());
+    }
+
+    @Test
+    @DisplayName("Create Order: Buy one get one test")
+    void create_order_buy_one_get_one() throws IOException {
+        List<OrderRequest> orderRequests = getOrderRequest("src/test/resources/order_request_buy_one_get_one.json");
+        final double expectedTotalPrice = orderRequests.get(0).getQuantity() * orderRequests.get(0).getItem().getPrice();
+        when(orderRepository.save(Mockito.any())).thenReturn(getOrder("src/test/resources/order_response_buy_one_get_one.json"));
+        OrderDto order = orderService.createOrder(orderRequests);
+        assertNotNull(order);
+        assertEquals(orderRequests.size(), order.getOrderItems().size());
+        assertEquals(
+                expectedTotalPrice,
+                order.getTotalOrderPrice());
+        assertEquals(
+                orderRequests.get(0).getQuantity() * 2,
+                order.getOrderItems().get(0).getOffer().getQuantity());
+        assertEquals(
+                expectedTotalPrice,
+                order.getOrderItems().get(0).getOffer().getPrice());
+    }
+
+    @Test
+    @DisplayName("Create Order: Three for price of two")
+    void create__request_three_for_price_of_two() throws IOException {
+        List<OrderRequest> orderRequests = getOrderRequest("src/test/resources/order_request_three_for_price_of_two.json");
+        final double expectedTotalPrice = orderRequests.get(0).getQuantity() * orderRequests.get(0).getItem().getPrice();
+        when(orderRepository.save(Mockito.any())).thenReturn(getOrder("src/test/resources/order_response_three_for_price_of_two.json"));
+        OrderDto order = orderService.createOrder(orderRequests);
+        assertNotNull(order);
+        assertEquals(orderRequests.size(), order.getOrderItems().size());
+        assertEquals(
+                expectedTotalPrice,
+                order.getTotalOrderPrice());
+        assertEquals(
+                orderRequests.get(0).getQuantity(),
+                order.getOrderItems().get(0).getOffer().getQuantity());
+        assertTrue(
+                expectedTotalPrice >
+                order.getOrderItems().get(0).getOffer().getPrice());
+        assertEquals(
+                4.2,
+                order.getTotalOfferPrice());
     }
 
     @Test
@@ -69,16 +111,16 @@ class OrderServiceImplTest {
         assertEquals("Exception has occurred while accessing db",generalException.getErrorMessage());
     }
 
-    private Order getOrder() throws IOException {
+    private Order getOrder(String filePath) throws IOException {
         return objectMapper.readValue(
-                new File("src/test/resources/order_response.json"),
+                new File(filePath),
                 Order.class);
     }
 
-    private List<OrderRequest> getOrderRequest() throws IOException {
+    private List<OrderRequest> getOrderRequest(String filePath) throws IOException {
         return Arrays.asList(
                 objectMapper.readValue(
-                        new File("src/test/resources/order_request.json"),
+                        new File(filePath),
                         OrderRequest[].class));
 
     }

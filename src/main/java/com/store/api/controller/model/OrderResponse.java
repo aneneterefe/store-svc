@@ -18,4 +18,5 @@ public class OrderResponse {
     private LocalDate orderDate;
     private double totalOrderPrice;
     private List<OrderItem> orderItems;
+    private Double totalOfferPrice;
 }

@@ -18,4 +18,5 @@ public class OrderDto {
     private LocalDate orderDate;
     private double totalOrderPrice;
     private List<OrderItem> orderItems;
+    private Double totalOfferPrice;
 }

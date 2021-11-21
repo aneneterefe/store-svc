@@ -24,4 +24,8 @@ public class OrderItem {
     @OneToOne
     @JoinColumn
     private @NotNull Item item;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn
+    private Offer offer;
 }

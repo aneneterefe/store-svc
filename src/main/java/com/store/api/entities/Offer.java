@@ -1,6 +1,5 @@
 package com.store.api.entities;
 
-import com.store.api.constants.OfferType;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,17 +11,13 @@ import javax.validation.constraints.NotNull;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Offer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private @NotNull String name;
+    private @NotNull  int quantity;
 
-    private @NotNull  double price;
-
-    private String description;
-
-    private @NotNull OfferType offerType;
+    private @NotNull double price;
 }
